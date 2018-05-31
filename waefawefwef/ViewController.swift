@@ -40,15 +40,17 @@ class ViewController: NSViewController {
         
         let contents = try! fileManager.contentsOfDirectory(atPath: path.stringValue)
         
+        desc.stringValue = ""
+        
         contents.forEach { (fileName) in
             
             
-            let ciimage = CIImage(contentsOf: URL(fileURLWithPath: path.stringValue + fileName))
-            
-            let context = CIContext(options: nil)
-            let cgimage = context.createCGImage(ciimage!, from: ciimage!.extent)
-            
-            analyze(cgimage!, fileName: fileName)
+            if let ciimage = CIImage(contentsOf: URL(fileURLWithPath: path.stringValue + fileName)) {
+                let context = CIContext(options: nil)
+                
+                let cgimage = context.createCGImage(ciimage, from: ciimage.extent)
+                analyze(cgimage!, fileName: fileName)
+            }
             
         }
         
@@ -99,7 +101,7 @@ class ViewController: NSViewController {
 //
 //                    let noseCrest = observation.landmarks?.noseCrest?.normalizedPoints
                     
-                      self.desc.stringValue = self.desc.stringValue + String(describing: allPointsInString) + "\n"
+                    self.desc.stringValue = self.desc.stringValue + fileName + ":" +  String(describing: allPointsInString) + "\n"
                     
                 }
             }
@@ -113,6 +115,9 @@ class ViewController: NSViewController {
     }
     
     @IBAction func export(_ sender: Any) {
+        
+        try? Data(desc.stringValue.utf8).write(to: URL(fileURLWithPath: path.stringValue + "desc.txt"))
+        
     }
     
     @IBAction func close(_ sender: Any) {
